@@ -1,0 +1,7 @@
+dist/
+__pycache__/
+tests/*.png
+tests/*.log
+tests/browser-results*.json
+tests/engine-results.txt
+tests/http-results.json

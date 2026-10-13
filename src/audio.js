@@ -1,68 +1,27 @@
-/* User-gesture audio, quiet stereo ambience, breath-synchronised sound and soft foley. */
-(function (root) {
+/* Gesture-unlocked, locally generated stereo sound. No network, microphone or speech service. */
+(function(root){
   'use strict';
-  class AudioRoom {
-    constructor() { this.ctx = null; this.enabled = true; this.volume = .65; this.available = true; this.paused = false; this.phaseKey = ''; this.sources = new Set(); this.hum = null; }
-    async unlock() {
-      if (!this.enabled || !this.available) return false;
-      try {
-        if (!this.ctx) {
-          const Context = root.AudioContext || root.webkitAudioContext;
-          if (!Context) { this.available = false; return false; }
-          this.ctx = new Context(); const c = this.ctx;
-          this.master = c.createGain(); this.master.gain.value = this.volume;
-          const limiter = c.createDynamicsCompressor(); limiter.threshold.value = -12; limiter.knee.value = 14; limiter.ratio.value = 5; limiter.attack.value = .008; limiter.release.value = .2;
-          this.master.connect(limiter); limiter.connect(c.destination);
-          this.bank = root.HushSoundBank(c);
-          this.rain = this.loop('rain', 0); this.room = this.loop('room', .22);
+  class Sound{
+    constructor(){this.ctx=null;this.enabled=true;this.volume=.6;this.paused=false;this.available=true;this.voices=new Set();this.lastBreath=-1;}
+    async unlock(){
+      if(!this.enabled||!this.available)return false;
+      try{
+        if(!this.ctx){const AC=root.AudioContext||root.webkitAudioContext;if(!AC){this.available=false;return false;}const c=this.ctx=new AC();this.master=c.createGain();this.world=c.createGain();this.book=c.createGain();this.master.gain.value=0;
+          const limit=c.createDynamicsCompressor();limit.threshold.value=-13;limit.knee.value=16;limit.ratio.value=5;this.world.connect(this.master);this.book.connect(this.master);this.master.connect(limit);limit.connect(c.destination);
+          this.bank={...HushSoundBank(c),...HushNightSounds(c)};this.loop('room',.2,this.world);this.book.gain.value=0;this.loop('book',1,this.book);
         }
-        // Called synchronously by click/pointer handlers, including Resume on iOS.
-        if (this.ctx.state !== 'running') await this.ctx.resume();
-        this.mix(); return this.ctx.state === 'running';
-      } catch (_) { this.available = false; return false; }
+        if(this.ctx.state!=='running')await this.ctx.resume();this.mix();return this.ctx.state==='running';
+      }catch(_){this.available=false;return false;}
     }
-    loop(name, gain) {
-      const c = this.ctx, source = c.createBufferSource(), g = c.createGain(); source.buffer = this.bank[name]; source.loop = true; source.loopStart = name === 'rain' ? .08 : name === 'room' ? .1 : 0; g.gain.value = gain; source.connect(g); g.connect(this.master); source.start(); return g;
-    }
-    mix() { if (this.ctx) this.master.gain.setTargetAtTime(this.enabled && !this.paused ? this.volume : 0, this.ctx.currentTime, .04); }
-    setPaused(value) { this.paused = value; if (value) { this.stopVoices(); this.stopHum(); } this.mix(); }
-    stopVoices() { for (const s of this.sources) { try { s.stop(); } catch (_) {} } this.sources.clear(); }
-    play(name, gain = 1, pan = 0, rate = 1) {
-      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled || this.paused || !this.bank[name]) return;
-      const c = this.ctx, s = c.createBufferSource(), g = c.createGain(); s.buffer = this.bank[name]; s.playbackRate.value = rate; g.gain.value = gain; s.connect(g);
-      if (c.createStereoPanner) { const p = c.createStereoPanner(); p.pan.value = pan; g.connect(p); p.connect(this.master); s.onended = () => { this.sources.delete(s); s.disconnect(); g.disconnect(); p.disconnect(); }; }
-      else { g.connect(this.master); s.onended = () => { this.sources.delete(s); s.disconnect(); g.disconnect(); }; }
-      this.sources.add(s); s.start(); return s;
-    }
-    tone(frequency, length = .45, gain = .045, delay = 0) {
-      if (!this.ctx || this.ctx.state !== 'running' || !this.enabled || this.paused) return;
-      const c = this.ctx, t = c.currentTime + delay, o = c.createOscillator(), g = c.createGain(); o.type = 'sine'; o.frequency.value = frequency;
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(gain, t + .025); g.gain.exponentialRampToValueAtTime(.0001, t + length);
-      o.connect(g); g.connect(this.master); this.sources.add(o); o.onended = () => { this.sources.delete(o); o.disconnect(); g.disconnect(); }; o.start(t); o.stop(t + length + .02);
-    }
-    startHum() { if (this.hum || !this.ctx || !this.enabled || this.paused) return; const c = this.ctx, o = c.createOscillator(), g = c.createGain(); o.frequency.value = 196; g.gain.value = 0; g.gain.setTargetAtTime(.035, c.currentTime, .2); o.connect(g); g.connect(this.master); o.start(); this.hum = { o, g }; }
-    stopHum() { if (!this.hum) return; const { o, g } = this.hum; this.hum = null; g.gain.setTargetAtTime(0, this.ctx.currentTime, .05); o.stop(this.ctx.currentTime + .2); o.onended = () => { o.disconnect(); g.disconnect(); }; }
-    effect(id, good = true) {
-      if (id === 'hush') this.play('shush', .6, .22);
-      else if (['pillow', 'roll', 'tuck', 'warm'].includes(id)) this.play('fabric', .9, -.2, id === 'roll' ? .78 : 1);
-      else if (id === 'pat') this.play('pat', .8, -.1);
-      if (!good) this.tone(110, .25, .018);
-    }
-    event(kind) { if (kind === 'phone') { this.tone(115, .15, .04); this.tone(115, .15, .035, .22); } else { this.tone(420, .32, .023); this.tone(350, .3, .015, .13); } }
-    finish(won) { this.stopVoices(); this.stopHum(); (won ? [261.63, 329.63, 392, 523.25] : [220, 196, 146.83]).forEach((f, i) => this.tone(f, 1, .035, i * .16)); }
-    update(s) {
-      if (!this.ctx) return;
-      this.rain.gain.setTargetAtTime(s && s.buffs.rain > 0 ? .72 : 0, this.ctx.currentTime, 1.1);
-      this.room.gain.setTargetAtTime(s ? .22 : .1, this.ctx.currentTime, .6);
-      if (!s || s.status !== 'playing' || this.paused) return;
-      const cycle = Math.floor(s.t / 4.4), exhale = s.phase >= .49;
-      const key = cycle + ':' + exhale;
-      if (key !== this.phaseKey) {
-        this.phaseKey = key;
-        if (exhale && s.noise > 24) this.play('snore' + (cycle % 3), .3 + s.noise / 100 * 1.8, -.35, s.buffs.side > 0 ? 1.1 : 1);
-        else if (!exhale) this.play('breath', .75, -.25);
-      }
-    }
+    loop(name,gain,bus){const c=this.ctx,s=c.createBufferSource(),g=c.createGain();s.buffer=this.bank[name];s.loop=true;g.gain.value=gain;s.connect(g);g.connect(bus);s.start();}
+    mix(){if(this.ctx)this.master.gain.setTargetAtTime(this.enabled&&!this.paused?this.volume:0,this.ctx.currentTime,.04);}
+    setPaused(value){this.paused=value;if(value)this.stop();this.mix();}
+    stop(){for(const s of this.voices){try{s.stop();}catch(_){}}this.voices.clear();}
+    play(name,gain=1,pan=0,rate=1){if(!this.ctx||this.ctx.state!=='running'||!this.enabled||this.paused||!this.bank[name])return;const c=this.ctx,s=c.createBufferSource(),g=c.createGain();s.buffer=this.bank[name];s.playbackRate.value=rate;g.gain.value=gain;s.connect(g);let p=null;if(c.createStereoPanner){p=c.createStereoPanner();p.pan.value=pan;g.connect(p);p.connect(this.world);}else g.connect(this.world);this.voices.add(s);s.onended=()=>{this.voices.delete(s);s.disconnect();g.disconnect();if(p)p.disconnect();};s.start();}
+    tone(f=390,d=.2,gain=.03){if(!this.ctx||!this.enabled||this.paused)return;const c=this.ctx,o=c.createOscillator(),g=c.createGain();o.frequency.value=f;g.gain.value=0;g.gain.linearRampToValueAtTime(gain,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+d);o.connect(g);g.connect(this.world);this.voices.add(o);o.onended=()=>{this.voices.delete(o);o.disconnect();g.disconnect();};o.start();o.stop(c.currentTime+d+.02);}
+    effect(e){switch(e.kind){case'nudge':case'kick':this.play('pat',e.kind==='kick'?1.6:1,-.35);this.play('fabric',.7);break;case'fart':this.play('fart',.9,-.3);break;case'cat':this.play('purr',.8);break;case'flush':this.play('flush',.55,.65);break;case'creak':this.play('creak',1,.2);break;case'pop':this.play('pop',.7);break;case'blanket':case'door':case'dock':this.play('fabric',.6);break;case'shush':this.play('shush',.6,.3);break;case'phone':this.tone(155,.3,.045);break;case'headphones':this.tone(370,.12,.025);break;case'empty':this.tone(145,.22,.025);break;case'success':this.tone(520,.16,.02);break;case'lost':this.stop();this.tone(110,.8,.025);break;case'won':this.tone(392,.6);this.tone(587,.9,.015);break;}}
+    tick(n){if(!this.ctx||this.ctx.state!=='running')return;const c=this.ctx;this.world.gain.setTargetAtTime(n.headphones?.2:1,c.currentTime,.2);this.book.gain.setTargetAtTime(n.headphones&&n.status==='playing'?1:0,c.currentTime,.15);
+      if(!this.enabled||this.paused||n.status!=='playing')return;const b=Math.floor(n.elapsed/1.8);if(b!==this.lastBreath){this.lastBreath=b;if(b%2===0&&n.noise>25&&n.stir<=0&&!n.away)this.play('snore'+(Math.floor(b/2)%3),.4+n.noise/110,-.35);else this.play('breath',.65,-.2);}}
   }
-  root.HushAudio = AudioRoom;
-})(window);
+  root.HushAudio=Sound;
+})(typeof globalThis!=='undefined'?globalThis:this);

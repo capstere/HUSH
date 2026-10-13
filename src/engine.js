@@ -1,92 +1,131 @@
-/* HUSH 2.0 — deterministic game rules, independent of the DOM and audio. */
+/* HUSH 3.0 — deterministic, DOM-free game rules. Fictional slapstick, no injury. */
 (function (root) {
   'use strict';
-  const clamp = (n, a = 0, b = 100) => Math.max(a, Math.min(b, n));
-  function random(seed) {
-    let x = seed >>> 0;
-    return () => { x += 0x6D2B79F5; let t = x; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
-  }
-  const TOOLS = [
-    { id: 'hush', name: 'Shhh', icon: 'hush', type: 'timing', hint: 'Tap while the breath is in the soft zone.', label: 'Shhh…', power: 23, risk: 17, cooldown: 4, duration: 2.4 },
-    { id: 'pillow', name: 'Pillow', icon: 'pillow', type: 'hold', hint: 'Hold gently. Release inside the soft zone.', label: 'Adjust the pillow', power: 32, risk: 22, cooldown: 9, duration: 2.5 },
-    { id: 'roll', name: 'Roll over', icon: 'roll', type: 'drag', hint: 'Hold & release in the zone, or slowly swipe the bed →', label: 'A little to the side', power: 37, risk: 28, cooldown: 15, duration: 2.8 },
-    { id: 'pat', name: 'Gentle pats', icon: 'hand', type: 'rhythm', hint: 'Three gentle taps. About half a second apart.', label: 'Pat, pat, pat', power: 24, risk: 17, cooldown: 8, duration: 2 },
-    { id: 'rain', name: 'Rain sounds', icon: 'rain', type: 'instant', hint: 'A little rain. A little peace. Lasts 18 seconds.', label: 'Let it rain', power: 15, risk: 3, cooldown: 27, duration: 1 },
-    { id: 'tuck', name: 'Tuck in', icon: 'tuck', type: 'hold', hint: 'Hold & release in the zone. No blanket stealing.', label: 'Make a tiny cocoon', power: 21, risk: 14, cooldown: 12, duration: 2.2 },
-    { id: 'hum', name: 'Hum softly', icon: 'hum', type: 'hold', hint: 'Hold a soft note. Release before the big finale.', label: 'A very small lullaby', power: 27, risk: 20, cooldown: 13, duration: 3 },
-    { id: 'warm', name: 'Warm feet', icon: 'warm', type: 'hold', hint: 'Hold & release in the zone. Recover your patience.', label: 'Cold feet, warm heart', power: 13, risk: 10, cooldown: 17, duration: 2.8 }
-  ];
-  const MODES = { cozy: { name: 'Soft landing', drain: .70, growth: .83, risk: .80 }, normal: { name: 'An ordinary night', drain: 1, growth: 1, risk: 1 }, light: { name: 'Light sleeper', drain: 1.15, growth: 1.12, risk: 1.22 } };
+  const clamp = (x, a = 0, b = 100) => Math.max(a, Math.min(b, x));
+  function random(seed) { let x = seed >>> 0 || 1; return () => { x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return (x >>> 0) / 4294967296; }; }
+  const EVENTS = {
+    fart: { name: 'An unexpected plot twist.', hint: 'Swipe the green cloud back and forth to fan it away.', time: 16 },
+    nightmare: { name: 'Attack of the tiny nightmares.', hint: 'Tap all three dream monsters. Not your partner!', time: 16 },
+    toilet: { name: 'Nature is calling. Quietly.', hint: 'Tap the bathroom door to sneak out.', time: 30 },
+    phone: { name: 'Who texts at this hour?', hint: 'Tap the buzzing phone on the left bedside table.', time: 12 },
+    cat: { name: 'The biscuit factory is open.', hint: 'Drag the cat onto the little rug at the foot of the bed.', time: 16 },
+    duvet: { name: 'A hostile duvet takeover.', hint: 'Grab the blue duvet edge and pull it back to the right.', time: 16 },
+    mosquito: { name: 'One extremely small helicopter.', hint: 'Tap the mosquito before it lands.', time: 12 }
+  };
+  const MODES = { cozy: .78, normal: 1, chaos: 1.22 };
   class Night {
-    constructor(mode = 'normal', seed = Date.now(), duration = 120) {
-      this.mode = MODES[mode] ? mode : 'normal'; this.config = MODES[this.mode];
-      this.seed = seed >>> 0; this.rng = random(this.seed); this.duration = Math.max(20, duration);
-      this.t = 0; this.noise = 65; this.wake = 8; this.patience = 100; this.status = 'playing';
-      this.buffs = { side: 0, cozy: 0, rain: 0, calm: 0 }; this.cooldowns = {};
-      this.queue = []; this.event = null; this.nextEvent = 20 + this.rng() * 7;
-      this.last = ''; this.repeat = 0; this.pillowAt = -999; this.perfect = 0; this.moves = 0; this.quiet = 0; this.score = 0;
+    constructor(mode = 'normal', seed = Date.now(), training = false) {
+      this.mode = MODES[mode] ? mode : 'normal'; this.rng = random(seed); this.training = training;
+      this.t = 0; this.elapsed = 0; this.length = 150; this.status = 'playing'; this.reason = '';
+      this.patience = 100; this.wake = 4; this.noise = 73; this.stir = 0; this.quiet = 0;
+      this.battery = 82; this.headphones = false; this.bookTime = 0;
+      this.shushing = false; this.shushUsed = 0; this.shushCooldown = 0; this.blanketCooldown = 0;
+      this.event = null; this.nextEvent = 19; this.eventIndex = 0; this.lastHit = -20;
+      this.stats = { nudges: 0, kicks: 0, closeCalls: 0, solved: 0, missed: 0, listening: 0 };
+      this.catOnRug = false; this.messages = []; this.effects = []; this.serial = 0; this.lastMove = '';
+      const shuffle = arr => arr.map(x => ({ x, k: this.rng() })).sort((a,b) => a.k-b.k).map(o => o.x);
+      this.eventBag = [...shuffle(['fart','nightmare','toilet']), ...shuffle(['phone','cat','duvet','mosquito'])];
     }
-    get progress() { return clamp(this.t / this.duration, 0, 1); }
-    get phase() { return (this.t % 4.4) / 4.4; }
-    get clock() { const min = 120 + Math.floor(300 * this.progress); return `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`; }
-    ready(id) { return this.status === 'playing' && TOOLS.some(t => t.id === id) && !(this.cooldowns[id] > 0); }
+    get phase() { return this.status === 'lost' ? 'awake' : this.stir > 0 ? 'stirring' : this.noise < 32 ? 'peaceful' : 'asleep'; }
+    get away() { return this.event?.id === 'toilet' && this.event.stage === 'walking'; }
+    get floorSafe() { return (this.elapsed % 2.6) < 1.7; }
+    say(text, mood = 'normal') { this.messages.push({ text, mood }); }
+    fx(kind, strength = 1) { this.effects.push({ kind, strength, serial: ++this.serial }); }
+    finish(status, reason = '') { this.status = status; this.reason = reason; this.shushing = false; if (this.event) this.event.holding = false; this.fx(status); }
+    check() {
+      this.patience = clamp(this.patience); this.wake = clamp(this.wake); this.noise = clamp(this.noise); this.battery = clamp(this.battery);
+      if (this.training || this.status !== 'playing') return;
+      if (this.wake >= 100) this.finish('lost', 'One nudge too many. Those eyes are definitely open.');
+      else if (this.patience <= 0) this.finish('lost', 'You shouted “PLEASE.” The whole street heard.');
+    }
+    hit(kind, force = .4) {
+      if (this.status !== 'playing' || this.away || this.elapsed-this.lastHit < .35) return false;
+      const f = clamp(Number.isFinite(force) ? force : .4, 0, 1), foot = kind === 'foot';
+      this.lastHit = this.elapsed; this.stats[foot ? 'kicks' : 'nudges']++; this.lastMove = kind;
+      const danger = this.stir > 0;
+      this.wake += danger ? 54 + f*32 : (foot ? 12 : 7) + f*24;
+      if (this.event?.id === 'nightmare') this.wake += 12;
+      this.noise -= (foot ? 35 : 27) + f*29; this.quiet = 4 + f*4;
+      this.stir = (foot ? 4.8 : 3.6) + f*1.4;
+      if (danger) { this.stats.closeCalls++; this.say('Too soon! They are waking up!', 'danger'); }
+      else this.say(f > .78 ? 'That was a bit much. FREEZE.' : foot ? 'A little kick. Now play innocent.' : 'Nudge delivered. Now hold still.', 'warning');
+      this.fx(foot ? 'kick' : 'nudge', f); this.check(); return true;
+    }
+    toggleHeadphones() {
+      if (this.status !== 'playing' || this.away) return false;
+      if (this.headphones) { this.headphones = false; this.say('Back on the charging stand. Peace was nice.'); this.fx('dock'); return true; }
+      if (this.battery < 9) { this.say('Not enough battery. Let them charge a little longer.', 'warning'); return false; }
+      this.headphones = true; this.say('Playing: The Incredibly Unimportant Adventures of Lord Turnip.'); this.fx('headphones'); return true;
+    }
+    setShush(on) {
+      if (this.status !== 'playing' || this.away) return;
+      if (on && this.shushCooldown <= 0) { this.shushing = true; this.shushUsed = 0; this.fx('shush'); }
+      if (!on && this.shushing) { this.shushing = false; this.shushCooldown = 8; this.quiet = Math.max(this.quiet, 2); }
+    }
+    blanket() {
+      if (this.event?.id === 'duvet') { this.resolve(true); this.fx('blanket'); return true; }
+      if (this.status !== 'playing' || this.away || this.blanketCooldown > 0) return false;
+      this.blanketCooldown = 15; this.noise -= 13; this.quiet = Math.max(this.quiet, 3); this.wake -= 3;
+      this.say('A tiny tuck. A tiny truce.'); this.fx('blanket'); this.check(); return true;
+    }
+    spawn(id) {
+      if (!EVENTS[id] || this.event || this.status !== 'playing') return false;
+      this.event = { id, left: EVENTS[id].time, progress: 0, popped: [], stage: 'waiting', holding: false, age: 0, squeak: 0 };
+      this.say(EVENTS[id].name); this.fx(id); return true;
+    }
+    eventAction(action, value) {
+      const e = this.event; if (!e || this.status !== 'playing') return false;
+      if (e.id === 'fart' && action === 'fan') { e.progress = clamp(e.progress + Math.abs(value || 0)/540, 0, 1); this.fx('fan', .2); }
+      else if (e.id === 'nightmare' && action === 'pop' && [0,1,2].includes(value) && !e.popped.includes(value)) { e.popped.push(value); e.progress = e.popped.length/3; this.fx('pop'); }
+      else if (e.id === 'phone' && action === 'tap') e.progress = 1;
+      else if (e.id === 'cat' && action === 'rug') e.progress = 1;
+      else if (e.id === 'duvet' && action === 'pull') e.progress = 1;
+      else if (e.id === 'mosquito' && action === 'tap') e.progress = 1;
+      else if (e.id === 'toilet' && action === 'enter') { e.stage = 'walking'; e.left = 28; this.headphones = false; this.say('Hold TIPTOE on green. Release on creaky red boards.'); this.fx('door'); }
+      else if (e.id === 'toilet' && action === 'walk') e.holding = !!value;
+      else return false;
+      if (e.progress >= 1) this.resolve(true); return true;
+    }
+    resolve(success) {
+      const e = this.event; if (!e) return;
+      const jokes = { fart: 'Love is in the air. Not that bit, though.', nightmare: 'The tiny tax inspectors have been defeated.', toilet: 'Stealth bathroom mission: accomplished.', phone: '“Are you awake?” Not the point, Dave.', cat: 'The biscuit factory has relocated.', duvet: 'Joint custody of the duvet restored.', mosquito: 'Helicopter grounded.' };
+      if (success) { if (e.id === 'cat') this.catOnRug = true; this.stats.solved++; this.patience += 9; this.wake -= 4; this.say(jokes[e.id]); this.fx(e.id === 'toilet' ? 'flush' : 'success'); if (e.id === 'nightmare') { this.noise -= 22; this.quiet = 6; } }
+      else { this.stats.missed++; this.patience -= e.id === 'fart' ? 22 : 15; this.wake += ['phone','nightmare','mosquito'].includes(e.id) ? 22 : 8; this.say('A small disaster. We are not discussing it in the morning.', 'warning'); this.fx('miss'); }
+      this.event = null; this.nextEvent = this.t + 10 + this.rng()*5; this.check();
+    }
     step(dt) {
       if (this.status !== 'playing' || !Number.isFinite(dt) || dt <= 0) return;
-      dt = Math.min(dt, .1); this.t = Math.min(this.duration, this.t + dt);
-      for (const key in this.cooldowns) this.cooldowns[key] = Math.max(0, this.cooldowns[key] - dt);
-      for (const key in this.buffs) this.buffs[key] = Math.max(0, this.buffs[key] - dt);
-      const relief = (this.buffs.side > 0 ? 1.65 : 0) + (this.buffs.rain > 0 ? 1 : 0) + (this.buffs.cozy > 0 ? .75 : 0) + (this.buffs.calm > 0 ? 1 : 0);
-      this.noise = clamp(this.noise + (2.15 * this.config.growth + .35 * Math.sin(this.t * .27) - relief) * dt);
-      this.wake = clamp(this.wake - (.64 + (this.noise < 30 ? .42 : 0)) * dt);
-      this.patience = clamp(this.patience + (this.noise < 32 ? 1.65 : -(this.noise - 32) / 32 * this.config.drain) * dt);
-      if (this.noise < 32) { this.quiet += dt; this.score += 9 * dt; }
-      if (this.event) {
-        this.event.left -= dt;
-        if (this.event.left <= 0) { this.wake = clamp(this.wake + 15 * this.config.risk); this.noise = clamp(this.noise + 8); this.queue.push({ type: 'missed', kind: this.event.kind }); this.event = null; }
-      } else if (this.t >= this.nextEvent && this.duration - this.t > 10) {
-        const kind = this.rng() < .55 ? 'phone' : 'cat'; this.event = { kind, left: 7.5 };
-        this.nextEvent = this.t + 23 + this.rng() * 12; this.queue.push({ type: 'event', kind });
+      dt = Math.min(dt, .1); this.elapsed += dt;
+      if (!this.training) this.t += dt;
+      const m = MODES[this.mode];
+      this.stir = Math.max(0, this.stir-dt); this.quiet = Math.max(0, this.quiet-dt);
+      this.shushCooldown = Math.max(0, this.shushCooldown-dt); this.blanketCooldown = Math.max(0, this.blanketCooldown-dt);
+      this.wake -= dt * (this.stir > 0 ? .8 : 4.1);
+      this.noise += dt * (this.quiet > 0 ? -3.5 : (this.noise < 84 ? 4.1*m : Math.sin(this.elapsed)*.3));
+      if (this.headphones) {
+        this.battery -= dt*6.6; this.bookTime += dt; this.stats.listening += dt;
+        if (this.battery <= 0) { this.headphones = false; this.say('Battery flat. Back on the stand to recharge.', 'warning'); this.fx('empty'); }
+      } else this.battery += dt*4.5;
+      if (this.shushing) { this.shushUsed += dt; this.noise -= dt*9; this.wake -= dt*.8; if (this.shushUsed >= 2.5) { this.setShush(false); this.say('Out of shhh. Catch your breath.'); } }
+      if (!this.training) {
+        const perceived = this.noise * (this.headphones || this.away ? .12 : 1);
+        this.patience += dt * (perceived < 33 ? .76 : -(perceived-28)/67 * .94*m);
+        if (this.event?.id === 'fart') this.patience -= dt*.6;
       }
-      this.checkEnd();
-    }
-    act(id, quality) {
-      if (!this.ready(id) || !Number.isFinite(quality)) return null;
-      const tool = TOOLS.find(t => t.id === id); const q = clamp(quality, 0, 1);
-      this.repeat = this.last === id ? this.repeat + 1 : 0; this.last = id; this.moves++;
-      this.cooldowns[id] = tool.cooldown;
-      const repeated = this.repeat > 0; const potency = Math.max(.42, 1 - this.repeat * .23);
-      const failed = q < .32;
-      this.noise = clamp(this.noise - tool.power * q * potency + (failed ? 6 : 0));
-      this.wake = clamp(this.wake + (tool.risk * (1 - q) * this.config.risk + (repeated ? 2 : 0)) - (q > .85 ? 3 : 0));
-      if (q >= .85) this.perfect++;
-      this.score += Math.round(80 * q); this.patience = clamp(this.patience + 3 * q);
-      let combo = false;
-      if (!failed) {
-        if (id === 'pillow') this.pillowAt = this.t;
-        if (id === 'roll') { this.buffs.side = 21 * q; if (this.t - this.pillowAt < 18) { combo = true; this.noise = clamp(this.noise - 12); this.score += 150; this.pillowAt = -999; } }
-        if (id === 'rain') this.buffs.rain = 18;
-        if (id === 'tuck') { this.buffs.cozy = 17 * q; this.patience = clamp(this.patience + 9 * q); }
-        if (id === 'hum' || id === 'pat') this.buffs.calm = 11 * q;
-        if (id === 'warm') this.patience = clamp(this.patience + 25 * q);
+      const e = this.event;
+      if (e) {
+        e.age += dt; e.left -= dt;
+        if (e.id === 'toilet' && e.stage === 'walking' && e.holding) {
+          if (this.floorSafe) { e.progress += dt/5.2; e.squeak = 0; }
+          else { this.wake += dt*23*m; e.squeak += dt; if (e.squeak >= .45) { this.fx('creak'); e.squeak = 0; } }
+        }
+        if (e.progress >= 1) this.resolve(true); else if (e.left <= 0) this.resolve(false);
+      } else if (!this.training && this.t >= this.nextEvent && this.stir <= 0 && this.t < this.length-12) {
+        this.spawn(this.eventBag[this.eventIndex++ % this.eventBag.length]);
       }
-      const result = { type: 'action', id, q, failed, repeated, combo };
-      this.queue.push(result); this.checkEnd(); return result;
-    }
-    resolveEvent() {
-      if (!this.event || this.status !== 'playing') return false;
-      this.queue.push({ type: 'saved', kind: this.event.kind }); this.event = null; this.score += 100; return true;
-    }
-    checkEnd() {
-      if (this.status !== 'playing') return;
-      if (this.wake >= 100 || this.patience <= 0) {
-        this.reason = this.patience <= 0 ? 'patience' : 'wake'; this.status = 'lost'; this.queue.push({ type: 'end' });
-      } else if (this.t >= this.duration) {
-        this.status = 'won'; this.score += Math.round(500 + this.patience * 5 + this.perfect * 20); this.queue.push({ type: 'end' });
-      }
+      this.check(); if (this.status === 'playing' && !this.training && this.t >= this.length) this.finish('won');
     }
   }
-  const quality = x => x >= .52 && x <= .77 ? 1 : clamp(1 - Math.min(Math.abs(x - .52), Math.abs(x - .77)) * 3.5, 0, .8);
-  const api = { Night, TOOLS, MODES, quality, clamp, random };
-  if (typeof module !== 'undefined' && module.exports) module.exports = api;
-  root.HushRules = api;
+  const api = { Night, clamp, random, EVENTS, MODES };
+  root.HushGame = api; if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this);
