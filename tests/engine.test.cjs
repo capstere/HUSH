@@ -11,7 +11,7 @@ test('invalid difficulty falls back to normal',()=>assert.equal(new Night('nope'
 test('hand contact reduces snoring and opens the stirring window',()=>{const n=quietNight(),noise=n.noise;assert(n.hit('hand',.3));assert(n.noise<noise);assert(n.stir>3);assert.equal(n.phase,'stirring');assert.equal(n.stats.nudges,1);});
 test('kick trades more quiet for more risk',()=>{const a=quietNight(),b=quietNight();a.hit('hand',.4);b.hit('foot',.4);assert(b.wake>a.wake);assert(b.noise<a.noise);assert(b.stir>a.stir);});
 test('fast contact is riskier than slow contact',()=>{const a=quietNight(),b=quietNight();a.hit('hand',.1);b.hit('hand',1);assert(b.wake>a.wake);});
-test('a second hard contact while stirring wakes the partner',()=>{const n=quietNight();n.hit('foot',1);tick(n,.5);n.hit('hand',1);assert.equal(n.status,'lost');assert.equal(n.stats.closeCalls,1);});
+test('a second hard contact while stirring wakes the partner',()=>{const n=quietNight();n.hit('foot',1);tick(n,.5);n.hit('hand',1);assert.equal(n.status,'playing');assert(n.awake);assert.equal(n.stats.closeCalls,1);});
 test('duplicate contact in one brief gesture is ignored',()=>{const n=quietNight();n.hit('hand',.3);assert.equal(n.hit('hand',.3),false);assert.equal(n.stats.nudges,1);});
 test('waiting for eyes to close makes another soft nudge possible',()=>{const n=quietNight();n.hit('hand',.2);tick(n,8);assert.equal(n.stir,0);n.hit('hand',.2);assert.equal(n.status,'playing');assert.equal(n.stats.closeCalls,0);});
 test('unattended night eventually fails',()=>{for(let i=1;i<5;i++){const n=new Night('normal',i);tick(n,151);assert.equal(n.status,'lost');}});
@@ -20,7 +20,7 @@ test('headphones drain quickly and resume charging when docked',()=>{const n=qui
 test('flat headphones automatically return to the stand',()=>{const n=quietNight();n.battery=12;n.toggleHeadphones();tick(n,2);assert.equal(n.headphones,false);tick(n,2);assert(n.battery>5);});
 test('almost empty headphones cannot be equipped',()=>{const n=quietNight();n.battery=3;assert.equal(n.toggleHeadphones(),false);assert.equal(n.headphones,false);});
 test('charging clamps at full and repeated toggles do not create battery',()=>{const n=quietNight();n.battery=99;tick(n,10);assert.equal(n.battery,100);for(let i=0;i<10;i++)n.toggleHeadphones();assert.equal(n.battery,100);});
-test('headphones protect patience but never remove wake-up risk',()=>{const n=quietNight();n.patience=70;n.toggleHeadphones();tick(n,4);assert(n.patience>70);n.hit('foot',1);tick(n,.5);n.hit('hand',1);assert.equal(n.status,'lost');});
+test('headphones protect patience but never remove wake-up risk',()=>{const n=quietNight();n.patience=70;n.toggleHeadphones();tick(n,4);assert(n.patience>70);n.hit('foot',1);tick(n,.5);n.hit('hand',1);assert(n.awake);assert.equal(n.status,'playing');});
 test('shush runs out of breath after 2.5 seconds',()=>{const n=quietNight();n.setShush(true);tick(n,3);assert.equal(n.shushing,false);assert(n.shushCooldown>0);n.setShush(true);assert.equal(n.shushing,false);});
 test('shush can be stopped early and recovers after cooldown',()=>{const n=quietNight();n.setShush(true);tick(n,.2);n.setShush(false);tick(n,8.2);n.setShush(true);assert.equal(n.shushing,true);});
 test('blanket has a cooldown but a stolen duvet can always be reclaimed',()=>{const n=quietNight();assert(n.blanket());assert.equal(n.blanket(),false);n.spawn('duvet');assert(n.blanket());assert.equal(n.event,null);assert.equal(n.stats.solved,1);});

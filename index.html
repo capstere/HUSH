@@ -4,18 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111d2c">
-<meta name="description" content="HUSH. Grab a hand. Nudge a snorer. Freeze. A hands-on midnight game for your phone.">
+<meta name="description" content="HUSH. A midnight game of mischief and second chances. Wake them? Win them back with tenderness and an original nocturne.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>HUSH. — Love is a light sleeper.</title>
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=4.0.0">
-<script defer src="src/engine.js?v=4.0.0"></script>
-<script defer src="assets/audio/sound-bank.js?v=4.0.0"></script>
-<script defer src="assets/audio/night-sounds.js?v=4.0.0"></script>
-<script defer src="src/audio.js?v=4.0.0"></script>
-<script defer src="src/motion.js?v=4.0.0"></script>
-<script defer src="src/scene.js?v=4.0.0"></script>
-<script defer src="src/app.js?v=4.0.0"></script>
+<link rel="stylesheet" href="style.css?v=5.0.0">
+<script defer src="src/engine.js?v=5.0.0"></script>
+<script defer src="assets/audio/sound-bank.js?v=5.0.0"></script>
+<script defer src="assets/audio/night-sounds.js?v=5.0.0"></script>
+<script defer src="assets/audio/nocturne.js?v=5.0.0"></script>
+<script defer src="src/audio.js?v=5.0.0"></script>
+<script defer src="src/motion.js?v=5.0.0"></script>
+<script defer src="src/scene.js?v=5.0.0"></script>
+<script defer src="src/app.js?v=5.0.0"></script>
 </head>
 <body>
 <svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -38,13 +39,13 @@
     </div>
   </header>
   <section id="intro">
-    <p class="eyebrow">AFTER MIDNIGHT</p>
+    <p class="eyebrow">SECOND CHANCES</p>
     <h1>hush<span>.</span><svg><use href="#moon"/></svg></h1>
     <p class="tagline">Love is a light sleeper.</p>
   </section>
   <section id="hud" hidden aria-label="Night status">
     <div class="meter"><div class="meter-label"><span>Your patience</span><b id="patienceValue">100</b></div><div id="patienceMeter" class="track" role="progressbar" aria-label="Your patience" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><i id="patienceFill"></i></div></div>
-    <div class="meter"><div class="meter-label"><span>Wake-up risk</span><b id="wakeValue">Low</b></div><div id="wakeMeter" class="track wake" role="progressbar" aria-label="Wake-up risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4"><i id="wakeFill"></i></div></div>
+    <div class="meter"><div class="meter-label"><span id="partnerMeterLabel">Wake-up risk</span><b id="wakeValue">Low</b></div><div id="wakeMeter" class="track wake" role="progressbar" aria-label="Wake-up risk" aria-valuemin="0" aria-valuemax="100" aria-valuenow="4"><i id="wakeFill"></i></div></div>
     <div class="night-line"><i id="nightProgress"></i></div>
   </section>
   <div id="scene" class="scene"><canvas id="bedroom" role="img" aria-label="Bedroom seen from above. Sleeper on the left; you on the right. Drag your hand or sock left to nudge. Headphones charge on the right bedside table."></canvas></div>
@@ -54,19 +55,24 @@
     <div class="event-track" id="eventTrack" hidden><i id="eventFill"></i></div>
   </section>
   <footer id="homeFooter">
-    <p class="premise">One bed.<br><em>Absolutely no peace.</em></p>
+    <p class="premise">Wake them?<br><em>Win them back.</em></p>
     <button id="startButton" class="primary">Save the night <svg><use href="#arrow"/></svg></button>
-    <div class="home-meta"><button id="howButton" class="text-button">How to play</button><button id="playgroundButton" class="text-button">Try the chaos</button><span>4.0 · AFTER MIDNIGHT</span></div>
+    <div class="home-meta"><button id="howButton" class="text-button">How to play</button><button id="playgroundButton" class="text-button">Try the chaos</button><span>5.0 · SECOND CHANCES</span></div>
   </footer>
   <footer id="controls" hidden>
     <button id="headphoneButton" class="listen-button" aria-label="Put on headphones"><svg><use href="#headphones"/></svg><span><strong id="headphoneTitle">Listen</strong><small id="headphoneHint">82% · charging</small><i class="battery-track"><i id="batteryFill"></i></i></span></button>
     <button id="shushButton" class="shush-button" aria-label="Hold to shush"><strong id="shushTitle">Shhh…</strong><small id="shushHint">HOLD TO SOOTHE</small></button>
     <button id="walkButton" class="shush-button" aria-label="Hold to tiptoe on green; release on red" hidden><strong id="walkTitle">Tiptoe</strong><small id="walkHint">HOLD ON GREEN</small></button>
+    <div id="recoveryControls" class="recovery-controls" hidden aria-label="Help your partner fall asleep again">
+      <button id="strokeButton" class="care-button" aria-label="Hold to stroke their hair"><svg viewBox="0 0 24 24"><path d="M4 12q5-6 16-3M4 16q6-5 16-3M7 20q6-4 13-3M4 5l2 2m7-5v3m7-1-2 3"/></svg><strong>Stroke</strong><small>HOLD GENTLY</small></button>
+      <button id="humButton" class="care-button" aria-label="Hold to hum a lullaby"><svg viewBox="0 0 24 24"><path d="M8 17V5l11-2v12M8 8l11-2"/><ellipse cx="5" cy="18" rx="3" ry="2.5"/><ellipse cx="16" cy="16" rx="3" ry="2.5"/></svg><strong>Hum</strong><small>HOLD A LULLABY</small></button>
+      <button id="breatheButton" class="care-button" aria-label="Hold while the breathing ring contracts; release as it expands"><svg viewBox="0 0 24 24"><path d="M3 8h12q6 0 5-4M3 12h17M3 16h11q6 0 4 4"/></svg><strong id="breatheTitle">Breathe in</strong><small id="breatheHint">RELEASE</small></button>
+    </div>
   </footer>
   <noscript>This game needs JavaScript enabled.</noscript>
 </main>
 <dialog id="modal" aria-labelledby="dialogTitle">
-  <div class="dialog-head"><span class="eyebrow">HUSH. / 4.0</span><button id="closeModal" class="icon-button" aria-label="Close"><svg><use href="#close"/></svg></button></div>
+  <div class="dialog-head"><span class="eyebrow">HUSH. / 5.0</span><button id="closeModal" class="icon-button" aria-label="Close"><svg><use href="#close"/></svg></button></div>
   <h2 id="dialogTitle">A little breather.</h2><div id="dialogContent"></div>
 </dialog>
 </body>

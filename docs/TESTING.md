@@ -1,41 +1,38 @@
-# HUSH 4.0.0 — verification
+# HUSH 5.0 verification
 
-Date: 2026-10-13. Results refer to After Midnight, not the previous release.
+Release: **SECOND CHANCES**, 2026-10-13. Results describe the final local release sources, including audio-context suspension on pause/mute. Repeated runs are not counted as extra checks.
 
-## Automated scope
+## Executed results
 
-**54 Node checks** cover the original rules plus pillow benefits/cooldown/rough handling, sneeze and window outcomes, correct nightmare particle origin, practice boundaries, pinned cloth endpoints, convergence, finite bounded simulation, particle lifetime/caps, reduced motion, headphone interpolation, reset isolation and separation of presentation from gameplay randomness.
+| Suite | Passed | Scope |
+|---|---:|---|
+| `node --test tests/*.test.cjs` | 91 / 91 | 46 core rules, 8 motion tests, 30 recovery tests, 7 music tests |
+| `tests/browser.test.py --inline` | 88 / 88 | Existing touch gameplay, lesson, headphones, sound, events, win/loss, lifecycle and twelve layouts |
+| `tests/after-midnight.test.py --inline` | 25 / 25 | Pillow, tissue, window, practice, grip offset, cloth and visual regression |
+| `tests/second-chances.test.py --inline` | 64 / 64 | Awake/drowsy/asleep, direct hair stroke, three real touch holds, cancellation, independent audio, parked events, recovery layouts |
+| Local HTTP integrity | 10 / 10 resources | HTTP 200 and byte equality with referenced local files |
+| Unmodified standalone smoke | PASS | No test hooks; real 12.5-second touch hold restores sleep and normal dock |
 
-**113 distinct Chromium checks** combine the full regression/layout suite (88) and new After Midnight suite (25). They use emulated touch events for the tutorial, hand and foot contacts, headphones, all nine interruptions, pillow flipping, off-centre grip, cancellation, practice navigation, tap alternatives, audio start/mute, waiting, loss/win and replay. Twelve viewport sizes check visible controls, no page overflow and a scaled touch nudge.
+**177 distinct Chromium assertions total.** All browser suites were rerun after the final audio changes. No uncaught JavaScript errors were reported.
 
-Viewports: 320×568, 360×640, 375×667, 390×844, 393×852, 412×915, 430×932, 768×1024, 1024×768, 568×320, 667×375, 844×390.
+Viewports: 320×568, 360×640, 375×667, 390×844, 393×852, 412×915, 430×932, 768×1024, 1024×768, 568×320, 667×375 and 844×390. Recovery controls remained on-screen, with all three primary care targets at least 44 CSS pixels in both dimensions. These are viewport simulations, not twelve physical-device tests.
 
-The loss and win regression tests now wait for the intentional reaction beat before looking for the result card. Touch-event scheduling affects measured force, so the repeated-hit browser test permits a third contact if the first two did not cross the loss threshold. The deterministic rule test still verifies that two maximum-force contacts wake the sleeper.
+## Recovery checks
 
-Audio buffers are checked for finite samples, nonzero energy and peaks below digital clipping. Four new sounds are wind, sniff, muffled sneeze and pillow movement. This is a signal check, not a subjective listening assessment.
+A full wake is recoverable and counted once. All three care methods work independently, including non-favourites. Slow strokes help; fast strokes and repeated hitting are counterproductive. Holds cannot farm progress without elapsed time. Cancellation stops care. Pillow/tuck cooldowns apply. Drowsiness appears before sleep; recovery gives a quiet interval.
 
-## Browser boundary
+Interruptions preserve progress and countdown while parked, including bathroom walking. Recovery stops an old hold, restores the correct controls and supplies a grace period. No new event can spawn over recovery. Dawn cannot win while the partner is awake, but successful recovery at dawn wins. Patience can still run out. Practice has no score or terminal failure.
 
-Browser navigation to a local HTTP origin was attempted and returned `ERR_BLOCKED_BY_ADMINISTRATOR`. Browser tests therefore use the exact local runtime sources embedded in an inline document, with only the existing local test-hook gate enabled. Production files never expose the hook on GitHub Pages. Relative file loading is checked separately on a local HTTP server.
+## Audio checks
 
-A 180-frame synthetic renderer timing is recorded in the new test evidence. It is not a hardware frame-rate, battery-life or input-latency benchmark. Automated rendering and touch emulation do not certify a physical phone.
+The new nocturne is 45 seconds, stereo, deterministic and independent of gameplay randomness. Five new PCM buffers and all 24 total buffers were finite and non-silent. Tests check ample digital headroom and a small loop-seam discontinuity; they do not certify perceived loudness on every speaker. Music, effects and master controls are independent. Pause/mute fade and resume were checked; repeated resumes did not duplicate the four persistent loops. Muted recovery remains playable.
 
-The short preview video is captured from the running Chromium fixture with actual emulated gestures. It has no audio track. Scene selection in the preview uses the practice system; it is not a full uninterrupted scored round.
+## Method and limits
 
-## Reproduce
+This environment blocked browser URL navigation, including localhost. The main suites therefore used `page.set_content()` with the actual runtime sources, changing only the local test-hook condition in the fixture. The public sources keep their localhost/`?test=1` gate. Touch used Chromium CDP input, not only direct function calls; test hooks also selected deterministic events and advanced rule time for repeatable state checks.
 
-```sh
-node --test tests/*.test.cjs
-python tests/browser.test.py --inline
-python tests/after-midnight.test.py --inline
-python tools/build.py
-node tools/render-audio.cjs
-```
+A separate smoke used the unmodified single-file build and a real-duration hold, with `window.__hush` absent. HTTP delivery was checked separately through Python's local HTTP client, not browser navigation. Renderer stress timing is diagnostic, not a phone frame-rate benchmark.
 
-Without `--inline`, first serve the folder at `http://127.0.0.1:8765/`.
+**Not verified:** physical iPhone/Android touch and audio routing, Safari, Firefox, mobile-browser chrome and interruptions, hearing the mix on device speakers, long-session battery usage, or live GitHub Pages gameplay. Deployment status must be reported separately from browser/gameplay testing.
 
-## Not verified
-
-Physical iPhone/Android touch latency and sustained performance; Safari/WebKit; Firefox; mobile silent switches, audio routing and Bluetooth; live public-site gameplay. Check the separate GitHub Pages deployment status for publication — a successful deploy is not a play test.
-
-Manual priorities: do off-centre grabs feel natural, is the pillow tab discoverable, can tissues reach the nose without covering all feedback, does the stirring period feel fair, and does Reduced motion feel comfortable?
+Run commands are in the root README. Browser suites regenerate their detailed JSON results and screenshots. The release summary is `tests/RESULTS.json`.

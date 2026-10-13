@@ -53,7 +53,7 @@ with sync_playwright() as pw:
     if '--only-layouts' not in sys.argv:
         ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True)
         page=ctx.new_page();prepare(page);cdp=ctx.new_cdp_session(page)
-        check('home loads and all seven script globals exist',get(page,"!!(HushGame&&HushSoundBank&&HushNightSounds&&HushAudio&&HushMotion&&HushBedroom&&__hush)"))
+        check('home loads and all runtime script globals exist',get(page,"!!(HushGame&&HushSoundBank&&HushNightSounds&&HushNocturne&&HushAudio&&HushMotion&&HushBedroom&&__hush)"))
         page.screenshot(path=str(OUT/'home-390.png'))
         page.locator('#startButton').tap();page.wait_for_timeout(400)
         check('first start enters a no-pressure hands-on lesson',get(page,'__hush.lesson===0&&__hush.night.training&&__hush.night.t===0'))
@@ -89,10 +89,11 @@ with sync_playwright() as pw:
         page.wait_for_timeout(400)
         drag(page,cdp,'__hush.room.hand','HushPoints.armTarget',steps=3,delay=2)
         # Browser input scheduling changes measured swipe speed; repeat until the rule's threshold is reached.
-        if get(page,"__hush.night.status==='playing'"):
+        if get(page,"!__hush.night.awake"):
             page.wait_for_timeout(400)
             drag(page,cdp,'__hush.room.foot','HushPoints.footTarget',steps=3,delay=2)
-        check('repeated fast contact while stirring actually triggers game over',get(page,"__hush.night.status==='lost'"))
+        check('repeated fast contact wakes the partner without ending the night',get(page,"__hush.night.awake&&__hush.night.status==='playing'"))
+        get(page,'__hush.night.patience=0;__hush.advance(.1)')
         page.wait_for_timeout(1300)
         check('loss shows a usable replay dialog',page.locator('#againButton').is_visible())
         page.screenshot(path=str(OUT/'lost-390.png'))
@@ -102,9 +103,9 @@ with sync_playwright() as pw:
         check('one-thumb headphone button equips without a gesture',get(page,'__hush.night.headphones'))
         get(page,'__hush.advance(4)');b=get(page,'__hush.night.battery');page.locator('#headphoneButton').tap();get(page,'__hush.advance(3)')
         check('visible battery increases on stand',get(page,'__hush.night.battery')>b and 'charging' in page.locator('#headphoneHint').inner_text())
-        page.locator('#soundButton').tap();page.wait_for_timeout(120)
+        page.locator('#soundButton').tap();page.wait_for_timeout(350)
         check('mute changes the actual audio bus as well as the icon',get(page,'!__hush.audio.enabled&&__hush.audio.master.gain.value<.05'))
-        page.locator('#soundButton').tap();page.wait_for_timeout(120)
+        page.locator('#soundButton').tap();page.wait_for_timeout(350)
         check('unmute restores audio without restarting night',get(page,'__hush.audio.enabled&&__hush.audio.master.gain.value>.3'))
         reset(page)
         box=page.locator('#shushButton').bounding_box();x,y=box['x']+box['width']/2,box['y']+20

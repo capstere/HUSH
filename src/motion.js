@@ -1,4 +1,4 @@
-/* HUSH 4.0 — bounded, timestep-stable animation systems. No gameplay decisions. */
+/* HUSH 5.0 — bounded, timestep-stable animation systems. No gameplay decisions. */
 (function (root) {
   'use strict';
   const { clamp, random } = HushGame;
@@ -51,6 +51,9 @@
         this.impact = .6 + e.strength*.7; this.impactKind = e.kind;
         this.cloth.kick(p.x, this.impact); this.emit(p.x, p.y, 'impact', 7, .5+e.strength);
       }
+      if (e.kind === 'wake-up') { this.cloth.kick(137,-.5); this.emit(175,102,'star',5,.3); }
+      if (e.kind === 'tender') this.emit(154,97,'heart',2,.25);
+      if (e.kind === 'resettled') { this.emit(142,116,'heart',8,.4); this.cloth.kick(137,.3); }
       if (e.kind === 'pillow') { this.pillow = 1; this.cloth.kick(118, -.6); this.emit(104, 127, 'feather', 7); }
       if (e.kind === 'blanket') this.cloth.kick(302, -.8);
       if (e.kind === 'pop') {
@@ -84,7 +87,7 @@
         }
         const phase = (n.elapsed % 3.6) / 3.6;
         const beat = Math.floor(n.elapsed/3.6);
-        if (phase<.42 && beat!==this.snore && n.noise>38 && n.stir<=0 && !n.away && this.particles.length < 80) {
+        if (phase<.42 && beat!==this.snore && n.noise>38 && !n.awake && n.stir<=0 && !n.away && this.particles.length < 80) {
           this.snore=beat;
           this.particles.push({x:151,y:153,vx:12,vy:-15,age:0,life:1.5,size:3.5,spin:0,kind:'breath'});
         }

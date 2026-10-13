@@ -1,57 +1,48 @@
 {
-  "version": "4.0.0",
-  "release": "After Midnight",
+  "release": "5.0.0",
+  "edition": "SECOND CHANCES",
   "date": "2026-10-13",
-  "baseline_commit": "653a13d80fecaddd20924018a551f8b4f5b59a56",
-  "node_checks": {
-    "total": 54,
-    "passed": 54,
-    "failed": 0
+  "node": {
+    "passed": 91,
+    "total": 91
   },
-  "browser_checks": {
-    "regression_and_12_viewports": 88,
+  "chromium": {
+    "base": 88,
     "after_midnight": 25,
-    "total_distinct": 113,
-    "failed": 0,
+    "second_chances": 64,
+    "distinct_total": 177,
     "uncaught_errors": [],
-    "engine": "144.0.7559.96",
-    "mode": "Inline exact runtime source, local-only test-hook gate enabled. No live-site gameplay claim."
+    "mode": "inline runtime sources; fixture test-hook gate enabled only locally"
   },
-  "local_http_resources": {
-    "checked": 9,
-    "passed": 9,
-    "byte_match": true
-  },
-  "standalone_smoke": {
-    "passed": true,
-    "production_test_hook_exposed": false
-  },
-  "sound_buffers": {
-    "checked": 19,
-    "finite_non_silent_unclipped": true
+  "viewports": [
+    "320x568",
+    "360x640",
+    "375x667",
+    "390x844",
+    "393x852",
+    "412x915",
+    "430x932",
+    "768x1024",
+    "1024x768",
+    "568x320",
+    "667x375",
+    "844x390"
+  ],
+  "http_resources": 10,
+  "production_smoke": "PASS: unmodified standalone, test hooks absent, real 12.5-second care hold restores sleep",
+  "audio_buffers": 24,
+  "music": {
+    "title": "Borrowed Moonlight",
+    "duration_seconds": 45,
+    "channels": 2,
+    "original_procedural_synthesis": true
   },
   "not_verified": [
-    "Physical iPhone or Android devices",
-    "Safari / WebKit",
+    "physical phones",
+    "Safari",
     "Firefox",
-    "Real mobile audio routing",
-    "Live public-site gameplay",
-    "Sustained mobile FPS or battery life"
-  ],
-  "git_blob_sha1_verified": {
-    "index.html": "120417edc69833607af1ae6b6b02c58aca0fba88",
-    "src/app.js": "898ea9d281af16831c291a49c87a7cc9395c2781",
-    "src/audio.js": "af999eee917ae9ebdfdb0c4aca98e68707213156",
-    "src/engine.js": "fbddcbddce2962423ecd1ccba9db645bbbf7161f",
-    "src/motion.js": "2c52f5b662a4119b6020ba73852c2e46f8d7a198",
-    "src/scene.js": "766375881ea788e75662d9c46c9106578e262b15",
-    "style.css": "cf3bebc3907c16d5e4a845fbb9334b745cc4cd9d",
-    "assets/audio/night-sounds.js": "2e39ea79f85bd53e4aa16d2d73768ac156e3ad6e",
-    "assets/audio/sound-bank.js": "f53cfcb1cfae8e5cb04b94641b78f2a0e1c6fa09",
-    "assets/icon.svg": "441e4653909dfcbf838c5b590c71e5b2ee6b635f",
-    "tests/after-midnight.test.py": "3d716f5b3afaa18304ef5d579ad10f8c97c2d9e1",
-    "tests/browser.test.py": "293bd258a073f6eb0ce066eab2374193502eca16",
-    "tests/engine.test.cjs": "c747aa4736d8ff421291d9a9659ad83972feef8d",
-    "tests/motion.test.cjs": "33fac4ea957bcb41ced88ad0dcaadd641ed66d93"
-  }
+    "device audio routing and subjective speaker quality",
+    "live GitHub Pages gameplay",
+    "long-session battery usage"
+  ]
 }

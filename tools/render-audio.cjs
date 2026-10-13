@@ -1,10 +1,10 @@
 /* Export the original synthesis as optional 16-bit PCM WAV files. Node only. */
 'use strict';
 const fs=require('node:fs'),path=require('node:path');
-require('../assets/audio/sound-bank.js');require('../assets/audio/night-sounds.js');
+require('../assets/audio/sound-bank.js');require('../assets/audio/night-sounds.js');require('../assets/audio/nocturne.js');
 const rate=22050;
 const ctx={sampleRate:rate,createBuffer(channels,length,sampleRate){const a=Array.from({length:channels},()=>new Float32Array(length));return {numberOfChannels:channels,length,sampleRate,getChannelData:i=>a[i]};}};
-const bank={...globalThis.HushSoundBank(ctx),...globalThis.HushNightSounds(ctx)};
+const bank={...globalThis.HushSoundBank(ctx),...globalThis.HushNightSounds(ctx),...globalThis.HushNocturne.render(ctx)};
 const dest=path.join(__dirname,'../dist/audio');fs.mkdirSync(dest,{recursive:true});
 for(const [name,b] of Object.entries(bank)){
  const size=b.length*b.numberOfChannels*2,out=Buffer.alloc(44+size);out.write('RIFF',0);out.writeUInt32LE(36+size,4);out.write('WAVEfmt ',8);out.writeUInt32LE(16,16);out.writeUInt16LE(1,20);out.writeUInt16LE(b.numberOfChannels,22);out.writeUInt32LE(b.sampleRate,24);out.writeUInt32LE(b.sampleRate*b.numberOfChannels*2,28);out.writeUInt16LE(b.numberOfChannels*2,32);out.writeUInt16LE(16,34);out.write('data',36);out.writeUInt32LE(size,40);

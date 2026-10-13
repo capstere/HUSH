@@ -21,3 +21,17 @@ button:not(.text-button):active{transform:translateY(1px)}
 .reduced button:active{transform:none}
 @media(max-height:680px){.home-meta>span{display:none}}
 @media(max-width:345px){.scene-grid{gap:6px}.scene-choice{padding:10px}.scene-choice b{font-size:12px}}
+
+/* SECOND CHANCES: reuse the same thumb dock, never shrink the room for another panel. */
+.recovery-controls{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;height:63px}
+.care-button{position:relative;min-width:0;height:63px;border-radius:14px;border:1px solid #a8cabb38;background:#294a4855;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.care-button svg{width:19px;height:19px;color:var(--mint);stroke-width:1.6}
+.care-button strong{font-size:12px;font-weight:600}.care-button small{font-size:8px;letter-spacing:.4px;color:#b2c6c3;white-space:nowrap}
+.care-button.preferred{border-color:#dfc19080}.care-button.preferred:before{content:'✦';position:absolute;right:7px;top:3px;color:var(--gold);font-size:9px}
+.care-button.active{background:#60857570;border-color:#d2e9cd;box-shadow:0 0 15px #b4dbbb18}
+#breatheButton.exhale{border-color:#b5d2bd99}.track.wake.settling>i{background:var(--mint)}
+#status[data-mood=tender] strong{color:#c8dec9}#status[data-mood=tender] #statusDot{background:#c8dec9}
+.partner-awake .scene{box-shadow:inset 0 0 0 1px #b5d2bd35}
+.settings-row:has(#musicInput){color:var(--gold)}
+@media(max-height:680px) and (orientation:portrait){.recovery-controls,.care-button{height:58px}.care-button small{font-size:7px}}
+@media(orientation:landscape) and (max-height:600px){.recovery-controls{gap:5px;height:57px}.care-button{height:57px;border-radius:10px}.care-button strong{font-size:10px}.care-button svg{height:16px;width:16px}.care-button small{font-size:6px;letter-spacing:0}}

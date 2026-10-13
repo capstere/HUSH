@@ -1,74 +1,62 @@
 # HUSH. — Love is a light sleeper.
 
-**4.0.0 · AFTER MIDNIGHT · 2026-10-13**
+**5.0.0 · SECOND CHANCES · 2026-10-13**
 
-Play: https://capstere.github.io/HUSH/?v=4
+Play: https://capstere.github.io/HUSH/?v=5
 
-A mobile-first, top-down midnight game based on Jesper's bedroom sketch. The sleeper is on the left; you are on the right. Survive from 02:00 to 07:00 in 150 seconds without waking your partner or losing your patience. All sounds are generated locally. No microphone, account, API key, tracking or downloads are required to play.
+A tiny top-down midnight game based on Jesper's bedroom drawing. The sleeper is on the left; you are on the right. Get through the night without running out of patience. A normal night runs from 02:00 to 07:00 in 150 seconds, with extra recovery time at dawn when necessary.
 
-## Grab the room, not a menu
+## New: waking up is not game over
 
-Grab your hand and drag it left onto their shoulder, or your sock towards their leg. Your grip keeps its original offset, the limbs follow your finger and spring back on release. Faster contact is stronger and riskier. A small ring at the grip shows force. One drag produces at most one contact.
+An open eye still means **FREEZE**: another nudge is risky. But a fully awake partner now starts a playable recovery phase instead of ending the game. The sleeper leans up, protests, gets drowsy and can drift back to sleep. The wake-risk meter becomes **Back to sleep** progress, and the same bottom dock changes to three gentle controls:
 
-When one eye opens, **FREEZE**. A countdown arc and the status text show the sensitive period. Hitting again can wake the sleeper completely. A loss now leaves time to see their reaction before the result card appears.
+- **Stroke:** hold the button, or slowly drag across the sleeper's hair. The arm reaches over and follows the soothing motion. Scrubbing fast is counterproductive.
+- **Hum:** hold a quiet, locally synthesized lullaby. Release to stop.
+- **Breathe:** let go as the ring expands; hold as it contracts. Only the shared exhale builds progress.
 
-Drag the large headphones from the right stand onto your head, or tap **Listen**. The muffled nonsense audiobook protects your patience. Full battery lasts about 15 seconds; docking recharges it in about 22 seconds. Headphones visibly travel between your head and the charging stand. Hold **Shhh** for a short, safe breather.
+The gold-marked favourite gives a modest bonus and changes on later awakenings. All three methods work on their own. The cool-side pillow and a duvet tuck also help, with cooldowns. Hitting an already awake partner reverses progress and costs patience. Headphones dock automatically during recovery.
 
-## New: the cool side
+**Fair interruptions:** an existing disaster is parked, not falsely solved or discarded. Its progress and countdown resume after the sleeper settles, with a six-second grace period and at least eight seconds left. This includes a bathroom trip: recovery returns to the bedroom, then the trip resumes without a stuck hold. New interruptions cannot overlap recovery.
 
-Drag the small mint tab on the left pillow slowly to the right. The pillow flexes, a few feathers float away and the sleeper leans into a quieter position. The effect lasts 17 seconds, with an 18-second cooldown. A rough flip, or moving the pillow while the sleeper is already stirring, raises wake-up risk. It is not an unlimited reset button.
+Dawn waits until the sleeper is asleep. Running out of patience remains the real loss condition: you both give up and make tea. Practice never produces a score or a game over.
 
-## Nine midnight interruptions
+## New: Borrowed Moonlight
 
-Only one interruption runs at a time. Fart, nightmare and bathroom still appear before the optional events, in a shuffled order. A normal short night does not guarantee every event.
+An original **45-second stereo nocturne**, at 64 beats per minute: soft felt-piano-style partials, warm sustained chords, a sparse melody and a quiet stereo echo. It loops with wrapped note tails rather than an abrupt restart. It is procedural synthesis, not a recording of a piano or a borrowed commercial song.
 
-| Interruption | Direct interaction |
-|---|---|
-| Fart | Swipe the green cloud back and forth; it moves and disperses as you fan. |
-| Nightmare | Pop three differently dressed dream creatures. They dissolve into stars at the creature you actually touched. |
-| Bathroom | Tap the right-hand door. Hold Tiptoe on green and release on red. A moving timing marker warns of the next creaky board. |
-| Sneeze — new | Drag a tissue from the box on the right to your nose before the sneeze escapes. |
-| Open window — new | Pull the glowing top window latch down to shut out the breeze. |
-| Phone | Tap the buzzing phone on the left table. |
-| Cat | Drag the kneading cat to the little rug. |
-| Stolen duvet | Pull the right-hand blue edge back to your side. |
-| Mosquito | Tap the flying nuisance. The touch target is larger than its illustration. |
+The mix now softens the snoring and sharper effects, fades short sounds instead of cutting them, and adds a gentle hum, sigh and goodnight phrase. Music becomes quieter during recovery and ducks further under the nonsense audiobook.
 
-## Try everything now
+In the help/pause menu, **Night music**, **Music level**, **Bedroom sounds** and **Master volume** are independent. The top speaker mutes everything. Audio starts on a user gesture, fades on pause and suspends the audio context while paused or muted; resume reuses the existing loops. All game actions still work silently. Device routing and real-phone audio need hands-on testing.
 
-Tap **Try the chaos** on the home screen, or open it through the pause menu. Ten practice scenes include the pillow and all nine interruptions. Practice has **no ticking night clock, no score and no game over**; event countdowns still run so you can learn their timing. **Scenes** switches exercises. **Start a real night** creates a fresh scored round.
+## The room is still the controller
 
-The original hands-on tutorial remains available and teaches the hand, foot, waiting and headphones. Skip or replay it from the menu.
+Grab your hand or sock and drag left towards the sleeper. Faster contact is stronger and riskier. One drag produces one contact. Headphones can be dragged between your head and the right charging stand, or controlled with **Listen / Dock & charge**. A full charge lasts about 15 seconds and takes about 22 seconds to restore. Hold **Shhh** for a short respite.
 
-## What moves in 4.0
+Pull the mint pillow tab slowly right for the cool side. Nine interruptions remain: fan a fart cloud, pop three dream creatures, tiptoe to the bathroom, catch a sneeze with a tissue, shut the window, silence the phone, relocate the cat to the rug, reclaim the duvet and catch the mosquito. Only one interruption is active at a time.
 
-Contact impulses travel through a bounded 19-node cloth simulation. The duvet folds respond locally, the pillow compresses and rebounds, rounded limbs have shadows and short speed trails, and character eyes glance towards your grip. Snoring follows the breathing cycle. Headphones move between their two physical locations; charging pulses and drifting notes show their state. Moonlight, sparse dust, dream particles, fluttering curtains and new sniff/wind/pillow sounds add atmosphere without additional permanent control panels.
+## Try the new part immediately
 
-**Reduced motion** removes cloth waves, speed trails and decorative particles. Essential control feedback remains. **Tap instead of drag** also supports the new pillow, tissue and window. Keyboard: A / K for hand / foot, H for headphones, Space to shush or tiptoe, P to pause. New object-specific actions are available by touch/mouse; the game is not a fully nonvisual keyboard game.
+**Try the chaos → Oops. Both eyes.** opens the new recovery practice. There are eleven practice scenes, including the pillow and all nine interruptions. **Scenes** switches exercises; **Start a real night** creates a fresh scored round. The original hands-on first-play lesson remains available.
 
-## Files
+Animation keeps the sketch's blue linen and overhead perspective. The new recovery has gradual eyelids, yawns, a leaning pose, a caressing arm, a tiny sheep, restrained hearts and a breathing ring. Reduced motion removes decorative particles and waves but retains essential control feedback. Recovery replaces controls rather than adding a permanent panel.
 
-- `index.html`, `style.css`: mobile layout and entry point. Keep these in the root.
-- `src/engine.js`: deterministic rules, battery, events and outcomes.
-- `src/app.js`: touch ownership, tutorial, practice gallery, lifecycle and controls.
-- `src/scene.js`: illustration and picking in 400 × 520 world coordinates.
-- `src/motion.js`: new bounded cloth, particles, trails and physical transitions. Presentation only; it does not consume gameplay randomness or change rules.
-- `src/audio.js`, `assets/audio/*.js`: original local synthesis and playback.
-- `tests/`, `tools/`, `docs/`: reproducible verification and optional export helpers.
+## Files and development
 
-## Publish or develop
+`index.html` and `style.css` stay at the root. Keep `src/` and `assets/` intact. GitHub Pages remains **main → / (root)**. No installation, build, remote game assets, account, microphone, API key or tracking is needed to play. Settings are stored locally, with migration from the previous version when available.
 
-GitHub Pages: **main → / (root)**, as before. Versioned resource URLs avoid mixing old scripts with the new entry point. No install or build is needed for the public multi-file edition.
+`src/engine.js` contains deterministic rules; `app.js` handles input and lifecycle; `scene.js` renders the room; `motion.js` supplies bounded presentation-only physics; `audio.js` mixes original synthesis from `assets/audio/`. `nocturne.js` contains the new composition. Test hooks are gated to local development, never enabled on the public site.
 
 ```sh
 python -m http.server 8765 --bind 127.0.0.1
 node --test tests/*.test.cjs
-python tests/browser.test.py
-python tests/after-midnight.test.py
+python tests/browser.test.py --inline
+python tests/after-midnight.test.py --inline
+python tests/second-chances.test.py --inline
 python tools/build.py
 node tools/render-audio.cjs
+python tests/production-smoke.py
 ```
 
-Playwright/Chromium are needed only for browser tests. `--inline` runs an embedded-source fixture where browser navigation is unavailable. Test hooks are gated to local development origins, never enabled on the public game. The single-file build includes the same art, motion and sound code. Optional WAV exports are not runtime assets.
+Playwright with Chromium is needed only for browser checks. Omit `--inline` for the HTTP browser-test path when navigation is allowed. The build creates `dist/HUSH.html`; audio export creates 24 optional WAV files, including the nocturne. Exported WAVs are not runtime dependencies.
 
-See [verification and limitations](docs/TESTING.md). Physical phone touch/audio behavior, Safari and Firefox remain hands-on checks. This standalone repository is the active game; `capstere/sw` is unchanged.
+**Verified locally:** 91 Node tests, 177 distinct Chromium checks, twelve viewport sizes, ten HTTP resources and an unmodified standalone recovery smoke. This is not physical-device, Safari/Firefox or live-site gameplay verification. See [test details](docs/TESTING.md). Only the standalone `capstere/HUSH` game is maintained here; `capstere/sw` is untouched.
