@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const {Night,EVENTS}=require('../src/engine.js');
 const tick=(n,seconds)=>{for(let t=0;t<seconds-1e-7;t+=.05)n.step(.05);};
 const quietNight=()=>{const n=new Night('normal',1);n.nextEvent=999;return n;};
-test('new night starts playable with seven named events',()=>{const n=new Night();assert.equal(n.status,'playing');assert.equal(n.length,150);assert.equal(Object.keys(EVENTS).length,7);});
+test('new night starts playable with nine named events',()=>{const n=new Night();assert.equal(n.status,'playing');assert.equal(n.length,150);assert.equal(Object.keys(EVENTS).length,9);});
 test('seeded schedules are reproducible',()=>{assert.deepEqual(new Night('normal',71).eventBag,new Night('normal',71).eventBag);});
 test('requested fart, nightmare and toilet occur before optional events',()=>{for(let s=1;s<30;s++)assert.deepEqual(new Set(new Night('normal',s).eventBag.slice(0,3)),new Set(['fart','nightmare','toilet']));});
 test('invalid difficulty falls back to normal',()=>assert.equal(new Night('nope').mode,'normal'));
@@ -50,3 +50,15 @@ test('ten seeded normal nights are winnable with a conservative active strategy'
   assert.equal(n.status,'won','seed '+seed);assert(n.stats.solved>=3);
  }
 });
+test('gentle pillow flip creates lasting cool-side relief',()=>{const n=quietNight(),before=n.noise;assert(n.pillow(.2));assert(n.noise<before);assert.equal(n.coolSide,17);assert.equal(n.stir,0);assert.equal(n.pillowCount,1);});
+test('pillow cooldown prevents infinite soothing',()=>{const n=quietNight();n.pillow(.2);assert.equal(n.pillow(.2),false);assert.equal(n.pillowCount,1);tick(n,18.1);assert(n.pillow(.2));});
+test('rough pillow motion creates a warning rather than free relief',()=>{const n=quietNight();n.pillow(.99);assert(n.stir>4);assert(n.wake>=24);assert.equal(n.coolSide,0);});
+test('pillow movement while stirring also risks waking the sleeper',()=>{const n=quietNight();n.hit('hand',.2);const w=n.wake;n.pillow(.1);assert.equal(n.wake-w,40);});
+test('pillow is unavailable when away or after loss',()=>{const n=quietNight();n.spawn('toilet');n.eventAction('enter');assert.equal(n.pillow(),false);n.resolve(true);n.finish('lost');assert.equal(n.pillow(),false);});
+test('cool-side relief and cooldown expire independently',()=>{const n=quietNight();n.pillow(.1);tick(n,17.1);assert.equal(n.coolSide,0);assert(n.pillowCooldown>0);});
+test('tissue resolves a pending sneeze and emits the visual effect',()=>{const n=quietNight();n.spawn('sneeze');assert(n.eventAction('tissue'));assert.equal(n.event,null);assert.equal(n.stats.solved,1);assert(n.effects.some(x=>x.kind==='tissue'));});
+test('missed sneeze raises risk and emits achoo',()=>{const n=quietNight();n.spawn('sneeze');n.resolve(false);assert(n.wake>=22);assert(n.effects.some(x=>x.kind==='sneeze-miss'));});
+test('window can be shut without touching the sleeper',()=>{const n=quietNight();n.spawn('breeze');assert(n.eventAction('close'));assert.equal(n.event,null);assert.equal(n.stats.nudges,0);assert(n.effects.some(x=>x.kind==='window'));});
+test('new event gestures cannot accidentally solve the wrong event',()=>{const n=quietNight();n.spawn('phone');assert.equal(n.eventAction('tissue'),false);assert.equal(n.eventAction('close'),false);assert.equal(n.event.id,'phone');});
+test('nightmare particle origin preserves the actual tapped monster',()=>{const n=quietNight();n.spawn('nightmare');n.eventAction('pop',2);assert.equal(n.effects.find(x=>x.kind==='pop').detail,2);});
+test('practice can survive all nine events without ending or ticking the night clock',()=>{const n=new Night('normal',93,true);for(const id of Object.keys(EVENTS)){n.spawn(id);n.resolve(false);tick(n,2);}assert.equal(n.status,'playing');assert.equal(n.t,0);assert.equal(n.stats.missed,9);});

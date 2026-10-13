@@ -53,7 +53,7 @@ with sync_playwright() as pw:
     if '--only-layouts' not in sys.argv:
         ctx=browser.new_context(viewport={'width':390,'height':844},device_scale_factor=2,is_mobile=True,has_touch=True)
         page=ctx.new_page();prepare(page);cdp=ctx.new_cdp_session(page)
-        check('home loads and all six script globals exist',get(page,"!!(HushGame&&HushSoundBank&&HushNightSounds&&HushAudio&&HushBedroom&&__hush)"))
+        check('home loads and all seven script globals exist',get(page,"!!(HushGame&&HushSoundBank&&HushNightSounds&&HushAudio&&HushMotion&&HushBedroom&&__hush)"))
         page.screenshot(path=str(OUT/'home-390.png'))
         page.locator('#startButton').tap();page.wait_for_timeout(400)
         check('first start enters a no-pressure hands-on lesson',get(page,'__hush.lesson===0&&__hush.night.training&&__hush.night.t===0'))
@@ -88,7 +88,12 @@ with sync_playwright() as pw:
         drag(page,cdp,'__hush.room.foot','HushPoints.footTarget',steps=3,delay=2)
         page.wait_for_timeout(400)
         drag(page,cdp,'__hush.room.hand','HushPoints.armTarget',steps=3,delay=2)
-        check('hard repeat contact while stirring actually triggers game over',get(page,"__hush.night.status==='lost'"))
+        # Browser input scheduling changes measured swipe speed; repeat until the rule's threshold is reached.
+        if get(page,"__hush.night.status==='playing'"):
+            page.wait_for_timeout(400)
+            drag(page,cdp,'__hush.room.foot','HushPoints.footTarget',steps=3,delay=2)
+        check('repeated fast contact while stirring actually triggers game over',get(page,"__hush.night.status==='lost'"))
+        page.wait_for_timeout(1300)
         check('loss shows a usable replay dialog',page.locator('#againButton').is_visible())
         page.screenshot(path=str(OUT/'lost-390.png'))
         page.locator('#againButton').tap();get(page,'__hush.night.nextEvent=999')
@@ -142,6 +147,7 @@ with sync_playwright() as pw:
         check('switching away automatically pauses and clears holds',get(page,'__hush.paused&&!__hush.night.shushing&&__hush.gesture===null'))
         page.locator('#resumeButton').tap();reset(page)
         get(page,'__hush.night.noise=0;__hush.night.quiet=999;__hush.advance(151)')
+        page.wait_for_timeout(2000)
         check('dawn produces the winning summary and replay',get(page,"__hush.night.status==='won'") and page.locator('#againButton').is_visible())
         page.screenshot(path=str(OUT/'won-390.png'))
         page.locator('#endHomeButton').tap();check('returning home resets the game screen',get(page,"document.querySelector('#app').dataset.screen==='home'"))

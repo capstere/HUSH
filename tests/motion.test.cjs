@@ -1,0 +1,12 @@
+'use strict';
+const {test}=require('node:test');const assert=require('node:assert/strict');
+const {Night}=require('../src/engine.js');const {Cloth,Theatre}=require('../src/motion.js');
+const hand={x:261,y:284},foot={x:262,y:439};
+test('cloth is quiet until a physical impulse arrives',()=>{const c=new Cloth();c.step(.06,false);assert(c.y.every(x=>x===0));c.kick(145);c.step(.04,false);assert(c.y.some(x=>x>0));});
+test('cloth endpoints remain pinned and all nodes settle',()=>{const c=new Cloth();c.kick(139,2);for(let i=0;i<1800;i++)c.step(1/60,false);assert.equal(c.y[0],0);assert.equal(c.y.at(-1),0);assert(c.y.every(x=>Math.abs(x)<.001));});
+test('large repeated cloth inputs remain finite and bounded',()=>{const c=new Cloth();for(let i=0;i<2000;i++){c.kick(66+i%267,i%2?-5:5);c.step(.06,false);}assert(c.y.every(x=>Number.isFinite(x)&&Math.abs(x)<=17));});
+test('reduced motion removes waves particles and speed trails',()=>{const f=new Theatre(),n=new Night();f.cloth.kick(170);f.emit(100,100);f.trail.push({x:10,y:10,age:0});f.step(.05,n,null,hand,foot,true);assert.equal(f.particles.length,0);assert.equal(f.trail.length,0);assert(f.cloth.y.every(x=>x===0));});
+test('particle pool has a hard bound and particles expire',()=>{const f=new Theatre(),n=new Night();for(let i=0;i<200;i++)f.emit(100,100,'star',16);assert.equal(f.particles.length,80);n.noise=0;for(let i=0;i<100;i++)f.step(.05,n,null,hand,foot,false);assert.equal(f.particles.length,0);});
+test('headphones travel continuously towards the correct target',()=>{const f=new Theatre(),n=new Night();n.headphones=true;f.step(.016,n,null,hand,foot,false);assert(f.pose.x<366&&f.pose.x>266);for(let i=0;i<100;i++)f.step(.016,n,null,hand,foot,false);assert(Math.abs(f.pose.x-266)<.01);});
+test('reset clears animation state between nights',()=>{const f=new Theatre();f.emit(10,10);f.impact=1;f.cloth.kick(100);f.reset();assert.equal(f.impact,0);assert.equal(f.particles.length,0);assert.equal(f.pose.x,366);});
+test('motion cannot change gameplay state or consume gameplay randomness',()=>{const a=new Night('normal',58),b=new Night('normal',58),f=new Theatre();for(let i=0;i<300;i++)f.step(1/60,a,null,hand,foot,false);assert.equal(a.t,b.t);assert.equal(a.noise,b.noise);assert.equal(a.rng(),b.rng());});

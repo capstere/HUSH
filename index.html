@@ -8,13 +8,14 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>HUSH. — Love is a light sleeper.</title>
 <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="style.css?v=3.0.0">
-<script defer src="src/engine.js?v=3.0.0"></script>
-<script defer src="assets/audio/sound-bank.js?v=3.0.0"></script>
-<script defer src="assets/audio/night-sounds.js?v=3.0.0"></script>
-<script defer src="src/audio.js?v=3.0.0"></script>
-<script defer src="src/scene.js?v=3.0.0"></script>
-<script defer src="src/app.js?v=3.0.0"></script>
+<link rel="stylesheet" href="style.css?v=4.0.0">
+<script defer src="src/engine.js?v=4.0.0"></script>
+<script defer src="assets/audio/sound-bank.js?v=4.0.0"></script>
+<script defer src="assets/audio/night-sounds.js?v=4.0.0"></script>
+<script defer src="src/audio.js?v=4.0.0"></script>
+<script defer src="src/motion.js?v=4.0.0"></script>
+<script defer src="src/scene.js?v=4.0.0"></script>
+<script defer src="src/app.js?v=4.0.0"></script>
 </head>
 <body>
 <svg class="symbols" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
@@ -37,7 +38,7 @@
     </div>
   </header>
   <section id="intro">
-    <p class="eyebrow">THE HANDS-ON EDITION</p>
+    <p class="eyebrow">AFTER MIDNIGHT</p>
     <h1>hush<span>.</span><svg><use href="#moon"/></svg></h1>
     <p class="tagline">Love is a light sleeper.</p>
   </section>
@@ -55,7 +56,7 @@
   <footer id="homeFooter">
     <p class="premise">One bed.<br><em>Absolutely no peace.</em></p>
     <button id="startButton" class="primary">Save the night <svg><use href="#arrow"/></svg></button>
-    <div class="home-meta"><button id="howButton" class="text-button">How to play</button><span>3.0 · A LITTLE MIDNIGHT MISCHIEF</span></div>
+    <div class="home-meta"><button id="howButton" class="text-button">How to play</button><button id="playgroundButton" class="text-button">Try the chaos</button><span>4.0 · AFTER MIDNIGHT</span></div>
   </footer>
   <footer id="controls" hidden>
     <button id="headphoneButton" class="listen-button" aria-label="Put on headphones"><svg><use href="#headphones"/></svg><span><strong id="headphoneTitle">Listen</strong><small id="headphoneHint">82% · charging</small><i class="battery-track"><i id="batteryFill"></i></i></span></button>
@@ -65,7 +66,7 @@
   <noscript>This game needs JavaScript enabled.</noscript>
 </main>
 <dialog id="modal" aria-labelledby="dialogTitle">
-  <div class="dialog-head"><span class="eyebrow">HUSH. / 3.0</span><button id="closeModal" class="icon-button" aria-label="Close"><svg><use href="#close"/></svg></button></div>
+  <div class="dialog-head"><span class="eyebrow">HUSH. / 4.0</span><button id="closeModal" class="icon-button" aria-label="Close"><svg><use href="#close"/></svg></button></div>
   <h2 id="dialogTitle">A little breather.</h2><div id="dialogContent"></div>
 </dialog>
 </body>

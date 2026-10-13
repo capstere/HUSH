@@ -1,4 +1,4 @@
-/* Original 3.0 sound design. The "audiobook" is generated nonsense, not speech or a recording. */
+/* Original 4.0 sound design. The "audiobook" is generated nonsense, not speech or a recording. */
 (function(root){
   'use strict';
   function make(ctx){
@@ -24,6 +24,10 @@
     buf('flush',1.9,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate,p=i/a.length;lp+=.075*(rand()-lp);a[i]=(lp*.58+Math.sin(t*(460-t*74))*.012)*Math.sin(Math.PI*p)**.8;}});
     buf('pop',.17,a=>{for(let i=0;i<a.length;i++){const t=i/rate;a[i]=Math.sin(2*Math.PI*(380*t-640*t*t))*.09*Math.exp(-t*29)*Math.min(1,t*300);}});
     buf('purr',.9,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate;lp+=.035*(rand()-lp);a[i]=lp*(.4+.4*Math.sin(t*155))*.6*Math.sin(Math.PI*i/a.length);}});
+    buf('wind',2.2,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate,p=i/a.length;lp+=.023*(rand()-lp);a[i]=(lp*.5+Math.sin(t*510+Math.sin(t*4)*4)*.006)*Math.sin(Math.PI*p)**1.4;}});
+    buf('sniff',.42,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate,p=i/a.length;lp+=.23*(rand()-lp);a[i]=lp*.14*Math.sin(Math.PI*p)**2*(.8+.2*Math.sin(t*300));}});
+    buf('achoo',.62,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate,p=i/a.length;lp+=.12*(rand()-lp);const env=p<.32?Math.sin(p/.32*Math.PI)*.3:Math.exp(-(p-.32)*7);a[i]=(lp*.55+Math.sin(t*(730-t*160))*.024)*env*Math.min(1,t*55);}});
+    buf('pillow',.65,a=>{let lp=0;for(let i=0;i<a.length;i++){const t=i/rate,p=i/a.length;lp+=.08*(rand()-lp);a[i]=(lp*.32+Math.sin(t*250)*.008)*Math.sin(Math.PI*p)**1.5;}});
     return bank;
   }
   root.HushNightSounds=make;

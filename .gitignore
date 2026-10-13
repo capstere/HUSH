@@ -5,3 +5,6 @@ tests/*.log
 tests/browser-results*.json
 tests/engine-results.txt
 tests/http-results.json
+video/
+tests/*-results.json
+tests/*-v4.txt

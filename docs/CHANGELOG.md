@@ -1,3 +1,16 @@
+# 4.0.0 — After Midnight · 2026-10-13
+
+- Added a presentation-only motion module: bounded spring cloth, local contact impulses, feathers, dream stars, short movement trails, headphone travel, charging pulses and ambient moonlight.
+- Rounded limb joints, contact shadows, grip offset preservation, glance reactions and a short end-state reaction beat.
+- Added cool-side pillow manipulation with distinct gentle/rough outcomes and cooldown.
+- Added a tissue/sneeze interruption and a moving curtain/window interruption, with original local sounds.
+- Added ten no-score practice scenes under Try the chaos; existing scored game and first-play tutorial remain separate.
+- Extended tap alternatives and reduced-motion behavior; viewport changes now clear active grips.
+- Kept one active interruption, two main thumb controls, English text, offline source assets and the original top-down room.
+- Added regression coverage and motion-only invariants. See TESTING.md.
+
+---
+
 # 3.0.0 — hands-on edition
 
 Replaces the 2.0 move-selection/minigame dock with direct manipulation of a jointed arm and leg. Gentle contacts reduce snoring; fast contacts do more but raise risk. One contact per gesture. A clearly signaled stirring window makes immediate repeat contact dangerous.
